@@ -1,0 +1,146 @@
+*.csv
+.bundle
+version
+at-run-helpers
+gbxfig
+logs
+deploy.json
+api-docs.html
+
+#################
+## Eclipse
+#################
+
+*.pydevproject
+.project
+.metadata
+bin/
+tmp/
+target/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+#################
+## Xcode
+#################
+build/*
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+*.xcworkspace
+!default.xcworkspace
+xcuserdata
+profile
+*.moved-aside
+
+.DS_Store
+
+############
+## Windows
+############
+
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+################
+# Linux
+################
+nohup.out
+.directory
+
+#############
+## Python
+#############
+
+*.py[co]
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+#Translations
+*.mo
+
+#Mr Developer
+.mr.developer.cfg
+
+# Mac crap
+.DS_Store
+
+
+################
+# NodeJS modules
+################
+node_modules
+*.log
+
+################
+# Sublime-Text
+################
+*.sublime-*
+
+################
+# Redis
+################
+dump.rdb
+
+######################
+# VAGRANT
+######################
+.vagrant
+
+######################
+# INTELLIJ IDEA
+######################
+.idea
+*.iml
+
+######################
+# SBT
+######################
+.cache
+
+deploy/service.tgz
+.sonar
