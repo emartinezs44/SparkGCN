@@ -15,15 +15,21 @@ class LogToFile[T: ClassTag](
   @transient lazy val logger = Logger.getLogger(getClass)
   import java.io._
 
+  var epoch =  0
+
   override def updateOutput(input: Tensor[T]): Tensor[T] = {
     val inputDimSize = input.size(1)
+    epoch = epoch + 1
+    logger.info("---> Epoch: " + epoch)
+    if(epoch % 200 == 0)
     (1 to inputDimSize).foreach { el =>
       val cad = input(el).toArray().toList.mkString(",")
-      /*val pw = new PrintWriter(new FileOutputStream(
-        new File("ouput-layer.csv"),
+      val pw = new PrintWriter(new FileOutputStream(
+        new File(s"output-layer-${epoch}-identity.csv"),
         true /* append = true */))
       pw.append(cad)
-      pw.close()*/
+      pw.append("\n")
+      pw.close()
     }
     output.resizeAs(input)
     output = input
