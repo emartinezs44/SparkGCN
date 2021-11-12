@@ -1,33 +1,19 @@
 package ems.gcn
 
 import com.intel.analytics.bigdl.dataset.Sample
-import com.intel.analytics.bigdl.nn.{ClassNLLCriterion, CrossEntropyCriterion, Sequential}
+import com.intel.analytics.bigdl.nn.{ClassNLLCriterion, Sequential}
 import com.intel.analytics.bigdl.optim.{Adam, CustomOptimizer, Top1Accuracy, Trigger, ValidationMethod, ValidationResult}
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.utils.Engine
-import ems.gcn.CoraExample.nodesNumber
 import ems.gcn.model.TorchBased
-import ems.gcn.utils.Partitioner.ExactPartitioner
-import ems.gcn.utils.UtilFunctions.time
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{lit, row_number}
-import org.apache.spark.sql.types.{FloatType, IntegerType}
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
-import java.io.PrintWriter
-import scala.collection.mutable
 
 case class Element(_c0: String, words: Array[String], label: String)
 case class ElementWithIndexAndNumericLabel(element: Element, index: Int, label: Float)
 case class Edge(orig: Int, dest: Int)
-
-import breeze.linalg
-import breeze.linalg.SparseVector
-import breeze.linalg.CSCMatrix
-import breeze.numerics.pow
 
 import ems.gcn.matrix.Adjacency._
 import ems.gcn.datasets.Operations._
@@ -89,7 +75,6 @@ object CoraExample {
       .getOrCreate()
 
   import spark.implicits._
-  import com.intel.analytics.bigdl.optim.PredictorExtensions._
 
   val dataset: String = getClass.getResource("/data/cora.content").getPath
   val edges: String = getClass.getResource("/data/cora.cites").getPath
@@ -108,12 +93,9 @@ object CoraExample {
   val nodesNumber = contentDF.count().toInt
 
   /* This partitioner requires a PairRDD whose key is some kind of related key */
-  val partitioner = new ExactPartitioner(1, nodesNumber)
-  val useIdentityAsAdjacency = false
+  val useIdentityAsAdjacencyAsPropFunction = false
 
   def main(args: Array[String]): Unit = {
-
-    import spark.implicits._
 
     val content = contentRDD.coalesce(1)
 
@@ -134,10 +116,8 @@ object CoraExample {
     val edgesMap = edgesUnordered.map(edge => Edge(idx(edge.orig), idx(edge.dest))).collect()
 
     val sparseAdj = buildAdjacencyMatrixFromCoordinates(edgesMap, nodesNumber)
-    val symAdj = transformToSymmetrical(sparseAdj)
-    val normalAdj = normalizationSparseFast(symAdj, nodesNumber)
 
-    val tensor = if (!useIdentityAsAdjacency) {
+    val tensor = if (!useIdentityAsAdjacencyAsPropFunction) {
       val symAdj = transformToSymmetrical(sparseAdj)
       /* Change the way of creating the adjacency */
       logger.info("Normalized matrix")
@@ -147,11 +127,7 @@ object CoraExample {
       getIdentityMatrix
     }
 
-    /** Take 20% of the training samples. We put -1 label to pad this training samples */
-    val trainIndexLimit = 150
-    val evalLimit = 300
-    val testLimit = 2000
-
+    /** Take 5% of the training samples. We put -1 label to pad this training samples */
     val completeDataset = splitsRDDs(contentWithIndexAndLabel, Array(0, 2708))
     val trainingDatasetWithIndex = splitsRDDs(contentWithIndexAndLabel, Array(0, 140))
     val evaluationDatasetWithIndex = splitsRDDs(contentWithIndexAndLabel, Array(150, 300))
@@ -179,6 +155,7 @@ object CoraExample {
 
     val modelTrained = optimizer.optimize()
 
+    /** At the moment we calculate the metrics doing inference to the whole dataset **/
     println(modelTrained.evaluate(completeDatasetRDD, Array(new Top1Accuracy[Float]()), Some(batchSize)).toList)
 
     spark.close()
