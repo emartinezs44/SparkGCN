@@ -2,10 +2,8 @@ package com.intel.analytics.bigdl.optim
 
 import com.intel.analytics.bigdl.Module
 import com.intel.analytics.bigdl.dataset.{PaddingParam, Sample}
-import com.intel.analytics.bigdl.nn.abstractnn.Activity
 import com.intel.analytics.bigdl.tensor.Tensor
 import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric
-import com.intel.analytics.bigdl.utils.T
 import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.ArrayBuffer

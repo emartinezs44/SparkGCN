@@ -1,5 +1,6 @@
 package ems.gcn
 
+import breeze.linalg.CSCMatrix
 import com.intel.analytics.bigdl.dataset.Sample
 import com.intel.analytics.bigdl.nn.{ClassNLLCriterion, Sequential}
 import com.intel.analytics.bigdl.optim.{Adam, CustomOptimizer, Top1Accuracy, Trigger, ValidationMethod, ValidationResult}
@@ -21,6 +22,14 @@ import ems.gcn.datasets.Operations._
 import com.intel.analytics.bigdl.tensor.SparseTensorUtils._
 
 object CoraExample {
+
+  def buildAdjacencyMatrixFromCoordinates(edges: Array[Edge], nElements: Int) = {
+    val builder = new CSCMatrix.Builder[Float](nElements, nElements)
+    edges.foreach { case Edge(r, c) =>
+      builder.add(r, c, 1.0F)
+    }
+    builder.result
+  }
 
   val logger = Logger.getLogger(getClass)
 
@@ -124,7 +133,7 @@ object CoraExample {
       val normalAdj = normalizationSparseFast(symAdj, nodesNumber)
       createSparseTensorFromBreeze[Float](normalAdj, nodesNumber, nodesNumber)
     } else {
-      getIdentityMatrix
+      getIdentityMatrix(nodesNumber)
     }
 
     /** Take 5% of the training samples. We put -1 label to pad this training samples */

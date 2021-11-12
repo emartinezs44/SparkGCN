@@ -4,9 +4,6 @@ import com.intel.analytics.bigdl.nn.{Dropout, Linear, LogSoftMax, ReLU, Sequenti
 import com.intel.analytics.bigdl.optim.L2Regularizer
 import com.intel.analytics.bigdl.tensor.Tensor
 import ems.gcn.layers.{GraphConvolution, LogToFile}
-import org.tensorflow.op.core.Print
-
-import java.io.PrintWriter
 
 object TorchBased {
   def getModel(

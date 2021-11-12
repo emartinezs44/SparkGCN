@@ -3,7 +3,7 @@ package ems.gcn.datasets
 import com.intel.analytics.bigdl.dataset.Sample
 import com.intel.analytics.bigdl.tensor.Tensor
 import ems.gcn.CoraExample.spark
-import ems.gcn.{Element, ElementWithIndexAndNumericLabel}
+import ems.gcn.ElementWithIndexAndNumericLabel
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{asc, col}

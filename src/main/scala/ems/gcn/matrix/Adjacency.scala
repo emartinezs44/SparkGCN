@@ -4,12 +4,12 @@ import breeze.linalg
 import breeze.linalg.{CSCMatrix, SparseVector}
 import breeze.numerics.pow
 import com.intel.analytics.bigdl.tensor.SparseTensorUtils
-
-import ems.gcn.CoraExample.{logger, nodesNumber}
-import ems.gcn.Edge
 import ems.gcn.utils.UtilFunctions.time
+import org.apache.log4j.Logger
 
 object Adjacency {
+
+  val logger = Logger.getLogger(getClass)
 
   private[gcn] def spdiagFast(a: SparseVector[Float]): CSCMatrix[Float] = {
     val size = a.size
@@ -24,7 +24,7 @@ object Adjacency {
     result.result
   }
 
-  private[gcn] def getIdentityMatrix = {
+  private[gcn] def getIdentityMatrix(nodesNumber: Int) = {
     logger.info("Using identity matrix as adjacency")
     val builder_sp = new CSCMatrix.Builder[Float](nodesNumber, nodesNumber)
     for (i <- 0 to (nodesNumber - 1)) {
@@ -86,14 +86,6 @@ object Adjacency {
     }("Transform to symmetric")
 
     r
-  }
-
-  private[gcn] def buildAdjacencyMatrixFromCoordinates(edges: Array[Edge], nElements: Int) = {
-    val builder = new CSCMatrix.Builder[Float](nElements, nElements)
-    edges.foreach { case Edge(r, c) =>
-      builder.add(r, c, 1.0F)
-    }
-    builder.result
   }
 
   private[gcn] def buildAdjacencySparseFast(m: Map[Int, Array[(Int, Int)]], nElements: Int): CSCMatrix[Float] = {
