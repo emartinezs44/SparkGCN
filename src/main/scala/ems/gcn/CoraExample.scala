@@ -101,11 +101,11 @@ object CoraExample {
 
   val nodesNumber = contentDF.count().toInt
 
-  /* This partitioner requires a PairRDD whose key is some kind of related key */
-  val useIdentityAsAdjacencyAsPropFunction = false
+  val useIdentityAsPropFunction = false
 
   def main(args: Array[String]): Unit = {
 
+    /** It uses only one partition */
     val content = contentRDD.coalesce(1)
 
     val edgesUnordered = edgesDF.rdd
@@ -126,7 +126,7 @@ object CoraExample {
 
     val sparseAdj = buildAdjacencyMatrixFromCoordinates(edgesMap, nodesNumber)
 
-    val tensor = if (!useIdentityAsAdjacencyAsPropFunction) {
+    val tensor = if (!useIdentityAsPropFunction) {
       val symAdj = transformToSymmetrical(sparseAdj)
       /* Change the way of creating the adjacency */
       logger.info("Normalized matrix")
