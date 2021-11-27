@@ -5,7 +5,7 @@ lazy val spark_sql = "org.apache.spark" %% "spark-sql" % "3.1.2"
 
 lazy val zoo = "com.intel.analytics.zoo" % "analytics-zoo-bigdl_0.13.0-spark_3.0.0" % "0.11.0"
 
-lazy val  nlp_with_zoo= project
+lazy val  gcn_with_zoo= project
   .in(file("."))
   .settings(
     name := "graph_conv_network",
