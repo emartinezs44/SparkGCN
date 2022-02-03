@@ -23,7 +23,6 @@ object TorchBased {
       .add(Dropout(dropout))
       .add(GraphConvolution[Float](matrix, batchSize, intermediateSize))
       .add(Linear[Float](intermediateSize, labelsNumber).setName("layer-2"))
-      .add(LogToFile[Float])
       .add(LogSoftMax())
   }
 }

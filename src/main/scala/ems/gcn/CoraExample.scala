@@ -11,7 +11,6 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
-
 case class Element(_c0: String, words: Array[String], label: String)
 case class ElementWithIndexAndNumericLabel(element: Element, index: Int, label: Float)
 case class Edge(orig: Int, dest: Int)
@@ -23,10 +22,23 @@ import com.intel.analytics.bigdl.tensor.SparseTensorUtils._
 
 object CoraExample {
 
+  private def getDataset(resource: String)(implicit spark: SparkSession): Dataset[String] = {
+    import spark.implicits._
+    val classloader: ClassLoader = Thread.currentThread.getContextClassLoader
+    val input = classloader.getResourceAsStream(resource)
+
+    val b = input.readAllBytes()
+    val arrChar = b.map(_.toChar)
+    val seq = String.valueOf(arrChar).split("\n")
+
+    spark.sparkContext.parallelize(seq.toSeq).toDS()
+  }
+
   def buildAdjacencyMatrixFromCoordinates(edges: Array[Edge], nElements: Int) = {
     val builder = new CSCMatrix.Builder[Float](nElements, nElements)
-    edges.foreach { case Edge(r, c) =>
-      builder.add(r, c, 1.0F)
+    edges.foreach {
+      case Edge(r, c) =>
+        builder.add(r, c, 1.0F)
     }
     builder.result
   }
@@ -85,25 +97,38 @@ object CoraExample {
 
   import spark.implicits._
 
-  val dataset: String = getClass.getResource("/data/cora.content").getPath
-  val edges: String = getClass.getResource("/data/cora.cites").getPath
-
-  val contentDF: DataFrame = spark.read.csv(dataset)
-  val contentRDD: RDD[Element] = contentDF.as[String].rdd.map { str =>
-    val el = str.split("\t")
-    Element(el(0), el.slice(1, 1433), el(1434))
-  }
-
-  val edgesDF: DataFrame =
-    spark.read
-      .option("delimiter", "\t")
-      .csv(edges)
-
-  val nodesNumber = contentDF.count().toInt
-
-  val useIdentityAsPropFunction = false
-
   def main(args: Array[String]): Unit = {
+
+    require(
+      args.length == 2,
+      "Include propagation mode." +
+        "\n 0: to NOT apply GCN" +
+        "\n 1: to APPLY GNC" +
+        "And the number of epochs"
+    )
+
+    val useIdentityAsPropFunction = args(0).toInt == 0
+
+    if (!useIdentityAsPropFunction) logger.info("Training with GCN")
+
+    val maxEpochs = args(1).toInt
+
+    /** Input node and edges files **/
+    val dataset = getDataset("data/cora.content")
+    val edges = getDataset("data/cora.cites")
+
+    val contentDF: DataFrame = spark.read.csv(dataset)
+    val contentRDD: RDD[Element] = contentDF.as[String].rdd.map { str =>
+      val el = str.split("\t")
+      Element(el(0), el.slice(1, 1433), el(1434))
+    }
+
+    val edgesDF: DataFrame =
+      spark.read
+        .option("delimiter", "\t")
+        .csv(edges)
+
+    val nodesNumber = contentDF.count().toInt
 
     /** It uses only one partition */
     val content = contentRDD.coalesce(1)
@@ -118,7 +143,8 @@ object CoraExample {
     val labelsSet = contentWithNumeric.map { case (element, _) => element.label }.collect().distinct
 
     val contentWithIndexAndLabel = contentWithNumeric.map {
-      case (element, index) => ElementWithIndexAndNumericLabel(element, index.toInt, labelsSet.indexOf(element.label) + 1)
+      case (element, index) =>
+        ElementWithIndexAndNumericLabel(element, index.toInt, labelsSet.indexOf(element.label) + 1)
     }
 
     val idx = contentWithIndexAndLabel.map(el => (el.element._c0.toInt -> el.index)).collect().toMap
@@ -160,7 +186,7 @@ object CoraExample {
         new ClassNLLCriterion[Float]()
       },
       batchSize = batchSize
-    ).setOptimMethod(new Adam(learningRate = 0.01)).setEndWhen(Trigger.maxEpoch(1000))
+    ).setOptimMethod(new Adam(learningRate = 0.01)).setEndWhen(Trigger.maxEpoch(maxEpochs))
 
     val modelTrained = optimizer.optimize()
 
@@ -171,4 +197,3 @@ object CoraExample {
   }
 
 }
-
