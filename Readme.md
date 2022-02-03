@@ -12,7 +12,7 @@ You can use SBT version >= 1.0(https://www.scala-sbt.org/download.html) to spawn
 - **0** to NOT apply convolution
 - **1** to apply GCN propagation model(see https://arxiv.org/pdf/1609.02907.pdf).
 
-You also must include the number of epochs you want to train the neural network.
+You must also include the number of epochs you want to train the neural network.
 
 Example:
 	```sbt run 1 200```
