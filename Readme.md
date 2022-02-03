@@ -23,4 +23,4 @@ You also can train the neural network in your spark cluster using **spark-submit
 
 **IMPORTANT NOTE**
 
-This project applies the convolution in **one Spark Partition**, so in case of submit the application to a Spark cluster **you must set the number of cores to 1**. This is because in each iteration the convolution is applied to the whole graph and if you use more cores the data will be split across threads and the process will fail. More work about dividing the graph within a Spark cluster for applying the convolution across executors in case of very big graphs will be added in this repo.
+This project applies the convolution in **one Spark Partition**, so in case of submitting the application to a Spark cluster **you must set the number of cores to 1**. This is because in each iteration the convolution is applied to the whole graph and if you use more cores the data will be split across threads and the process will fail. More work about dividing the graph within a Spark cluster for applying the convolution across executors in case of very big graphs will be added in this repo.
