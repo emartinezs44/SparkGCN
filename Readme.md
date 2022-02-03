@@ -22,4 +22,5 @@ This sbt command starts the optimization process and executes the inference to t
 You also can train the neural network in your spark cluster using **spark-submit** indicating the main class and the parameters **ems.gcn.CoraExample [mode] [epochs]** including the Analytics Zoo dependency(see https://analytics-zoo.readthedocs.io/en/latest/doc/UserGuide/scala.html) and the artifact generated with **sbt package**. The sbt package task generates the resulting jar in the directory **target/scala-2.12**.
 
 **IMPORTANT NOTE**
+
 This project applies the convolution in **one Spark Partition**, so in case of submit the application to a Spark cluster **you must set the number of cores to 1**. This is because in each iteration the convolution is applied to the whole graph and if you use more cores the data will be split across threads and the process will fail. More work about dividing the graph within a Spark cluster for applying the convolution across executors in case of very big graphs will be added in this repo.
