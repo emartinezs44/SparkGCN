@@ -6,11 +6,11 @@ It is implemented for the moment only the Cora example. The main program include
 
 You can read more info about the experiment in https://emartinezs44.medium.com/graph-convolutions-networks-ad8295b3ce57.
 
-**Execution**
+### Execution
 
-You can use SBT version >= 1.0(https://www.scala-sbt.org/download.html) to execute the example, indicating the propagation function model to apply, **0** to NOT apply convolution and **1** to apply GCN propagation model(see https://arxiv.org/pdf/1609.02907.pdf) and the number of epochs.
+You can use SBT version >= 1.0(https://www.scala-sbt.org/download.html) to spwn the training process, indicating the propagation function model to apply: **0** to NOT apply convolution and **1** to apply GCN propagation model(see https://arxiv.org/pdf/1609.02907.pdf) and the number of epochs.
 
 Example:
 	```sbt run 1 200```
 
-You can also create a jar using **sbt package**. The data is included in the jar sou you can test the model in your spark cluster using **spark-submit** indicating as the main class and the parameters **ems.gcn.CoraExample [mode] [epochs]**.
+You can also create a jar using **sbt package**. The data is included in the jar sou you can test the model in your spark cluster using **spark-submit** indicating the main class and the parameters **ems.gcn.CoraExample [mode] [epochs]**.
