@@ -1,21 +1,18 @@
 package ems.gcn.layers
 
-import com.intel.analytics.bigdl.nn.abstractnn.AbstractModule
-import com.intel.analytics.bigdl.tensor.{SparseTensorMath, Tensor}
-import com.intel.analytics.bigdl.tensor.TensorNumericMath.TensorNumeric
-import org.apache.log4j.Logger
+import com.intel.analytics.bigdl.dllib.nn.abstractnn.AbstractModule
+import com.intel.analytics.bigdl.dllib.tensor.{SparseTensorMath, Tensor}
+import com.intel.analytics.bigdl.dllib.tensor.TensorNumericMath.TensorNumeric
+//import org.apache.log4j.Logger
 
 import scala.reflect.ClassTag
 
-class GraphConvolution[T: ClassTag](val adjMatrix: Tensor[T], val batchSize: Int, val featuresNumber: Int)(
-    implicit ev: TensorNumeric[T]
-) extends AbstractModule[Tensor[T], Tensor[T], T] {
-
-  @transient lazy val logger = Logger.getLogger(getClass)
+class GraphConvolution[T: ClassTag](val adjMatrix: Tensor[T], val batchSize: Int,
+  val featuresNumber: Int)(implicit ev: TensorNumeric[T])
+  extends AbstractModule[Tensor[T], Tensor[T], T] {
 
   override def updateOutput(input: Tensor[T]): Tensor[T] = {
     output.resize(batchSize, featuresNumber).zero()
-    logger.debug(s"Input tensor ${input}")
     SparseTensorMath.addmm(
       output,
       ev.zero,
@@ -35,9 +32,8 @@ class GraphConvolution[T: ClassTag](val adjMatrix: Tensor[T], val batchSize: Int
 }
 
 object GraphConvolution {
-  def apply[@specialized(Float, Double) T: ClassTag](adjMatrix: Tensor[T], batchSize: Int, featuresNumber: Int)(
-      implicit ev: TensorNumeric[T]
-  ): GraphConvolution[T] = {
+  def apply[@specialized(Float, Double) T: ClassTag](adjMatrix: Tensor[T],
+    batchSize: Int, featuresNumber: Int)(implicit ev: TensorNumeric[T]): GraphConvolution[T] = {
     new GraphConvolution[T](adjMatrix, batchSize, featuresNumber)
   }
 }

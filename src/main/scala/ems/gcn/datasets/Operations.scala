@@ -1,7 +1,7 @@
 package ems.gcn.datasets
 
-import com.intel.analytics.bigdl.dataset.Sample
-import com.intel.analytics.bigdl.tensor.Tensor
+import com.intel.analytics.bigdl.dllib.feature.dataset.Sample
+import com.intel.analytics.bigdl.dllib.tensor.Tensor
 import ems.gcn.CoraExample.spark
 import ems.gcn.ElementWithIndexAndNumericLabel
 import org.apache.spark.rdd.RDD

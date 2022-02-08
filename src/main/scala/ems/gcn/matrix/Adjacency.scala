@@ -3,7 +3,7 @@ package ems.gcn.matrix
 import breeze.linalg
 import breeze.linalg.{CSCMatrix, SparseVector}
 import breeze.numerics.pow
-import com.intel.analytics.bigdl.tensor.SparseTensorUtils
+import com.intel.analytics.bigdl.dllib.tensor.SparseTensorUtils
 import ems.gcn.utils.UtilFunctions.time
 import org.apache.log4j.Logger
 
