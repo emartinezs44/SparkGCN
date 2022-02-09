@@ -44,11 +44,13 @@ object CoraExample {
   def main(args: Array[String]): Unit = {
 
     require(
-      args.length == 2,
+      args.length == 4,
       "Include propagation mode." +
         "\n 0: to NOT apply GCN" +
         "\n 1: to APPLY GNC" +
-        "And the number of epochs"
+        "And the number of epochs" +
+        "\n 2: dataset path" +
+        "\n 3: edges path"
     )
 
     val useIdentityAsPropFunction = args(0).toInt == 0
@@ -58,8 +60,10 @@ object CoraExample {
     val maxEpochs = args(1).toInt
 
     /** Input node and edges files **/
-    val dataset: String = getClass.getClassLoader.getResource("data/cora.content").getFile
-    val edges: String = getClass.getClassLoader.getResource("data/cora.cites").getFile
+//    val dataset: String = getClass.getClassLoader.getResource("data/cora.content").getFile
+//    val edges: String = getClass.getClassLoader.getResource("data/cora.cites").getFile
+    val dataset: String = args(2)
+    val edges: String = args(3)
 
     val contentDF: DataFrame = spark.read.csv(dataset)
     val contentRDD: RDD[Element] = contentDF.as[String].rdd.map { str =>
