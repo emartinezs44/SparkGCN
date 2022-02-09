@@ -124,7 +124,7 @@ object CoraExample {
     val model = ems.gcn.model.KerasBased.getModel(0.5, tensor, batchSize, 1432, 16, 7)
     model.compile(new Adam[Float](learningRate = 0.01), new ClassNLLCriterion[Float]())
 
-    model.fit(trainingRDD, batchSize, 1000, keepOrder = true, groupSize = batchSize)
+    model.fit(trainingRDD, batchSize, 1000, shuffleData = false, groupSize = batchSize)
 
     val res = model.evaluate(completeDatasetRDD, Array(new Top1Accuracy[Float]()), Some(batchSize)).toList
     println("accuracy:", res(0))
