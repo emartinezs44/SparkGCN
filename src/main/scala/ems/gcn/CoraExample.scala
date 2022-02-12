@@ -10,15 +10,21 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 case class Element(_c0: String, words: Array[String], label: String)
-case class ElementWithIndexAndNumericLabel(element: Element, index: Int, label: Float)
+case class ElementWithIndexAndNumericLabel(
+    element: Element,
+    index: Int,
+    label: Float
+)
 case class Edge(orig: Int, dest: Int)
 
 object CoraExample {
-  def buildAdjacencyMatrixFromCoordinates(edges: Array[Edge], nElements: Int) = {
+  def buildAdjacencyMatrixFromCoordinates(
+      edges: Array[Edge],
+      nElements: Int
+  ) = {
     val builder = new CSCMatrix.Builder[Float](nElements, nElements)
-    edges.foreach {
-      case Edge(r, c) =>
-        builder.add(r, c, 1.0F)
+    edges.foreach { case Edge(r, c) =>
+      builder.add(r, c, 1.0f)
     }
     builder.result
   }
@@ -43,6 +49,8 @@ object CoraExample {
 
   def main(args: Array[String]): Unit = {
 
+    println("args length: " + args.length)
+
     require(
       args.length == 4,
       "Include propagation mode." +
@@ -59,7 +67,7 @@ object CoraExample {
 
     val maxEpochs = args(1).toInt
 
-    /** Input node and edges files **/
+    /** Input node and edges files * */
 //    val dataset: String = getClass.getClassLoader.getResource("data/cora.content").getFile
 //    val edges: String = getClass.getClassLoader.getResource("data/cora.cites").getFile
     val dataset: String = args(2)
@@ -87,20 +95,33 @@ object CoraExample {
 
     val contentWithNumeric = content.zipWithIndex()
 
-    /** Extract labels set **/
-    val labelsSet = contentWithNumeric.map { case (element, _) => element.label }.collect().distinct
+    /** Extract labels set * */
+    val labelsSet = contentWithNumeric
+      .map { case (element, _) => element.label }
+      .collect()
+      .distinct
 
     val contentWithIndexAndLabel = contentWithNumeric.map {
-      case (element, index) => ElementWithIndexAndNumericLabel(element, index.toInt, labelsSet.indexOf(element.label) + 1)
+      case (element, index) =>
+        ElementWithIndexAndNumericLabel(
+          element,
+          index.toInt,
+          labelsSet.indexOf(element.label) + 1
+        )
     }
 
-    val idx = contentWithIndexAndLabel.map(el => (el.element._c0.toInt -> el.index)).collect().toMap
-    val edgesMap = edgesUnordered.map(edge => Edge(idx(edge.orig), idx(edge.dest))).collect()
+    val idx = contentWithIndexAndLabel
+      .map(el => (el.element._c0.toInt -> el.index))
+      .collect()
+      .toMap
+    val edgesMap =
+      edgesUnordered.map(edge => Edge(idx(edge.orig), idx(edge.dest))).collect()
 
     val sparseAdj = buildAdjacencyMatrixFromCoordinates(edgesMap, nodesNumber)
 
     import ems.gcn.matrix.Adjacency._
     import com.intel.analytics.bigdl.dllib.tensor.SparseTensorUtils._
+
     val tensor = if (!useIdentityAsPropFunction) {
       val symAdj = transformToSymmetrical(sparseAdj)
       /* Change the way of creating the adjacency */
@@ -113,9 +134,12 @@ object CoraExample {
     /** Take 5% of the training samples. We put -1 label to pad this training samples */
     import ems.gcn.datasets.Operations._
     val completeDataset = splitsRDDs(contentWithIndexAndLabel, Array(0, 2708))
-    val trainingDatasetWithIndex = splitsRDDs(contentWithIndexAndLabel, Array(0, 140))
-    val evaluationDatasetWithIndex = splitsRDDs(contentWithIndexAndLabel, Array(150, 300))
-    val testDatasetWithIndex = splitsRDDs(contentWithIndexAndLabel, Array(500, 1500))
+    val trainingDatasetWithIndex =
+      splitsRDDs(contentWithIndexAndLabel, Array(0, 140))
+    val evaluationDatasetWithIndex =
+      splitsRDDs(contentWithIndexAndLabel, Array(150, 300))
+    val testDatasetWithIndex =
+      splitsRDDs(contentWithIndexAndLabel, Array(500, 1500))
 
     val trainingRDD = createInputDataset(trainingDatasetWithIndex)
     val evaluationRDD = createInputDataset(evaluationDatasetWithIndex)
@@ -125,12 +149,28 @@ object CoraExample {
 
     val batchSize = trainingDatasetWithIndex.count().toInt
 
-    val model = ems.gcn.model.KerasBased.getModel(0.5, tensor, batchSize, 1432, 16, 7)
-    model.compile(new Adam[Float](learningRate = 0.01), new ClassNLLCriterion[Float]())
+    val model =
+      ems.gcn.model.KerasBased.getModel(0.5, tensor, batchSize, 1432, 16, 7)
+    model.compile(
+      new Adam[Float](learningRate = 0.01),
+      new ClassNLLCriterion[Float]()
+    )
 
-    model.fit(trainingRDD, batchSize, 1000, shuffleData = false, groupSize = batchSize)
+    model.fit(
+      trainingRDD,
+      batchSize,
+      maxEpochs,
+      shuffleData = false,
+      groupSize = batchSize
+    )
 
-    val res = model.evaluate(completeDatasetRDD, Array(new Top1Accuracy[Float]()), Some(batchSize)).toList
+    val res = model
+      .evaluate(
+        completeDatasetRDD,
+        Array(new Top1Accuracy[Float]()),
+        Some(batchSize)
+      )
+      .toList
     println("accuracy:", res(0))
     spark.close()
   }
