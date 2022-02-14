@@ -1,11 +1,11 @@
 ## Graph Convolutional Networks in Apache Spark
 
-Implementation of the GCN(https://arxiv.org/abs/1609.02907) on top of Spark using [BigDL 2.0](https://bigdl.readthedocs.io/en/latest/). It is inspired on the initial [Keras-based implementation](https://github.com/tkipf/keras-gcn).
+Implementation of the GCN(https://arxiv.org/abs/1609.02907) on top of Spark using [BigDL 2.0](https://bigdl.readthedocs.io/en/latest/). It is inspired by the initial [Keras-based implementation](https://github.com/tkipf/keras-gcn).
 
 It is a pure Scala project that relies on [BigDL DLlib](https://bigdl.readthedocs.io/en/latest/doc/DLlib/Overview/dllib.html) and [Breeze](https://github.com/scalanlp/breeze) libraries and can be used in graph processing pipelines based in Spark like GraphX that can be executed in big data clusters.
 
 ### Cora Example
-To see how it works it is implemented the [Cora](https://graphsandnetworks.com/the-cora-dataset/) example that consists in a semi-supervised classification problem where only 140 samples from a set of 2708 are used in the training process.  With these labeled nodes the optimization process calculates a set weights which can be considered as filter parameters of convolutional layers that are shared across the graph and encode node features and information from its connections. For more details see: ["Semi-Supervised Classification with Graph Convolutional Networks"](https://arxiv.org/abs/1609.02907) (Thomas N. Kipf, Max Welling).
+To see how it works, it is implemented the [Cora](https://graphsandnetworks.com/the-cora-dataset/) example that consists in a **semi-supervised classification problem** where only 140 samples from a set of 2708 are used in the training process.  With these labeled nodes, the optimization process calculates a set of weights which can be considered as filter parameters of convolutional layers that are shared across the graph and encode node features and information from connections. For more details see: ["Semi-Supervised Classification with Graph Convolutional Networks"](https://arxiv.org/abs/1609.02907) (Thomas N. Kipf, Max Welling).
 
 #### Results
 
