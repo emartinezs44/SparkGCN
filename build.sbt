@@ -1,10 +1,10 @@
-val ScalaVersion = "2.11.12"
+val ScalaVersion = "2.12.10"
 
-lazy val spark_mlib = "org.apache.spark" %% "spark-mllib" % "2.4.3"
-lazy val spark_sql = "org.apache.spark" %% "spark-sql" % "2.4.3"
+lazy val spark_mlib = "org.apache.spark" %% "spark-mllib" % "3.1.2"
+lazy val spark_sql = "org.apache.spark" %% "spark-sql" % "3.1.2"
 
 lazy val zoo =
-  "com.intel.analytics.bigdl" % "bigdl-dllib-spark_2.4.6" % "0.14.0-SNAPSHOT"
+  "com.intel.analytics.bigdl" % "bigdl-dllib-spark_3.1.2" % "2.1.0"
 
 lazy val gcn_with_zoo = project
   .in(file("."))

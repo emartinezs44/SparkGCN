@@ -1,7 +1,7 @@
 package ems.gcn.matrix
 
 import breeze.linalg
-import breeze.linalg.{CSCMatrix, SparseVector}
+import breeze.linalg.{CSCMatrix, SparseVector, kron}
 import breeze.numerics.pow
 import com.intel.analytics.bigdl.dllib.tensor.SparseTensorUtils
 import ems.gcn.utils.UtilFunctions.time
@@ -32,10 +32,17 @@ object Adjacency {
     }
 
     val eye = builder_sp.result
-    SparseTensorUtils.createSparseTensorFromBreeze(eye, nodesNumber, nodesNumber)
+    SparseTensorUtils.createSparseTensorFromBreeze(
+      eye,
+      nodesNumber,
+      nodesNumber
+    )
   }
 
-  private[gcn] def normalizationSparseFast(adj: CSCMatrix[Float], nElements: Int): CSCMatrix[Float] = {
+  private[gcn] def normalizationSparseFast(
+      adj: CSCMatrix[Float],
+      nElements: Int
+  ): CSCMatrix[Float] = {
 
     val builder_sp = new CSCMatrix.Builder[Float](nElements, nElements)
 
@@ -50,15 +57,14 @@ object Adjacency {
 
     time {
       logger.info("Creating degree vector ")
-      T.activeIterator.foreach {
-        case ((row, col), valu) =>
-          sumVector(row) += valu
+      T.activeIterator.foreach { case ((row, col), valu) =>
+        sumVector(row) += valu
       }
     }("Creating degree vector")
 
     val T2 = time {
       logger.info("Pow vector operation")
-      pow(sumVector, -0.5F)
+      pow(sumVector, -0.5f)
     }("Pow vector operation")
 
     val T3 =
@@ -78,17 +84,24 @@ object Adjacency {
     T4
   }
 
-  private[gcn] def transformToSymmetrical(sparseAdj: CSCMatrix[Float]): CSCMatrix[Float] = {
+  private[gcn] def transformToSymmetrical(
+      sparseAdj: CSCMatrix[Float]
+  ): CSCMatrix[Float] = {
     val r = time {
       sparseAdj +:+ (sparseAdj.t *:* (sparseAdj.t >:> sparseAdj)
-        .map(el => if (el) 1.0F else 0.0F)) - (sparseAdj *:* (sparseAdj.t >:> sparseAdj)
-        .map(el => if (el) 1.0F else 0.0F))
+        .map(el =>
+          if (el) 1.0f else 0.0f
+        )) - (sparseAdj *:* (sparseAdj.t >:> sparseAdj)
+        .map(el => if (el) 1.0f else 0.0f))
     }("Transform to symmetric")
 
     r
   }
 
-  private[gcn] def buildAdjacencySparseFast(m: Map[Int, Array[(Int, Int)]], nElements: Int): CSCMatrix[Float] = {
+  private[gcn] def buildAdjacencySparseFast(
+      m: Map[Int, Array[(Int, Int)]],
+      nElements: Int
+  ): CSCMatrix[Float] = {
     val index = 0 to nElements
     val result_map = time {
       logger.info("Searching in Map")
@@ -102,7 +115,7 @@ object Adjacency {
         list_positions.foreach {
           // add a factor x10
           case (r, c) => {
-            builder.add(r, c, 1.0F)
+            builder.add(r, c, 1.0f)
           }
         }
       }

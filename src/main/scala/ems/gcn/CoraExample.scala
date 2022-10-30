@@ -1,13 +1,30 @@
 package ems.gcn
 
-import breeze.linalg.CSCMatrix
+import breeze.linalg.{CSCMatrix, DenseMatrix, DenseVector}
 import com.intel.analytics.bigdl.dllib.NNContext
+import com.intel.analytics.bigdl.dllib.keras.layers.SoftMax
 import com.intel.analytics.bigdl.dllib.nn.ClassNLLCriterion
 import com.intel.analytics.bigdl.dllib.optim.{Adam, Top1Accuracy}
+import com.intel.analytics.bigdl.dllib.tensor.Tensor
+import com.intel.analytics.bigdl.dllib.utils.Shape
 import org.apache.log4j.{Level, Logger}
+import org.apache.parquet.filter2.predicate.Operators.UserDefined
 import org.apache.spark.SparkConf
+import org.apache.spark.ml.Transformer
+import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.expressions.{UserDefinedFunction, Window}
+import org.apache.spark.sql.functions.{array, col, collect_list, column, udf}
+import org.apache.spark.sql.types.{
+  LongType,
+  StringType,
+  StructField,
+  StructType
+}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
+
+import java.util.UUID
+import scala.collection.mutable
 
 case class Element(_c0: String, words: Array[String], label: String)
 case class ElementWithIndexAndNumericLabel(
